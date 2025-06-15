@@ -47,7 +47,7 @@ Road test appointments in British Columbia are typically booked solid for 6+ mon
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/yourusername/icbc-road-test-catcher.git
+git clone https://github.com/l1ve4code/icbc-road-test-catcher.git
 cd icbc-road-test-catcher
 ```
 
@@ -62,7 +62,7 @@ docker-compose up -d
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/yourusername/icbc-road-test-catcher.git
+git clone https://github.com/l1ve4code/icbc-road-test-catcher.git
 cd icbc-road-test-catcher
 ```
 
