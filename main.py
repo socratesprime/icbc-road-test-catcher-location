@@ -423,27 +423,71 @@ def main():
 
     last_check_time = time.time()
     last_token_time = time.time()
+    last_booking_time = None  # Track when the last booking was made
+    current_booked_date = None  # Track the currently booked appointment date
 
-    print("Script started. Beginning monitoring for available dates...")
+    print("Script started. Beginning continuous monitoring for available dates...")
 
     try:
         while True:
             current_time = time.time()
 
+            # Refresh token if needed (maintain existing token refresh logic)
             if current_time - last_token_time >= CONFIG["token_refresh_interval"]:
                 refresh_token()
                 last_token_time = current_time
 
+            # Check for appointments at regular intervals
             if current_time - last_check_time >= CONFIG["check_interval"]:
-                if auto_book_earliest_appointment():
-                    print("Booking completed successfully! Script terminating.")
-                    break
+                # Add a 5-minute delay after a successful booking to avoid overloading servers
+                if last_booking_time and (current_time - last_booking_time) < 300:  # 300 seconds = 5 minutes
+                    print(f"Waiting {300 - int(current_time - last_booking_time)} more seconds before next check...")
+                    last_check_time = current_time
+                    time.sleep(1)
+                    continue
+
+                # Get the earliest available appointment
+                earliest_appointment = get_earliest_appointment()
+                
+                if earliest_appointment:
+                    appointment_date = earliest_appointment['appointmentDt']['date']
+                    
+                    # If this is our first booking, or if we found an earlier date than currently booked
+                    if (current_booked_date is None or 
+                        datetime.strptime(appointment_date, "%Y-%m-%d").date() < 
+                        datetime.strptime(current_booked_date, "%Y-%m-%d").date()):
+                        
+                        if current_booked_date:
+                            print(f"Found earlier appointment ({appointment_date}) than current booking ({current_booked_date})")
+                        else:
+                            print(f"Found available appointment: {appointment_date}")
+                        
+                        # Attempt to book the appointment
+                        if auto_book_earliest_appointment():
+                            print(f"Booking completed successfully for {appointment_date}!")
+                            current_booked_date = appointment_date
+                            last_booking_time = current_time
+                            print("Continuing to monitor for even earlier appointments...")
+                        else:
+                            print("Booking attempt failed. Will continue monitoring...")
+                    else:
+                        print(f"Available appointment ({appointment_date}) is not earlier than current booking ({current_booked_date})")
+                else:
+                    if current_booked_date:
+                        print("No earlier appointments available. Current booking maintained.")
+                    else:
+                        print("No suitable appointments available in the desired date range.")
+                
                 last_check_time = current_time
 
             time.sleep(1)
 
     except KeyboardInterrupt:
         print("\nScript stopped by user")
+        if current_booked_date:
+            print(f"Last booked appointment: {current_booked_date}")
+        else:
+            print("No appointments were booked during this session.")
 
 
 if __name__ == "__main__":
