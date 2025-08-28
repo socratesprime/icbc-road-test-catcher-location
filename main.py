@@ -22,7 +22,7 @@ CONFIG = {
     },
 
     "appointment_request_base": {
-        "examType": "5-R-1",
+        "examType": "7-R-1",
         "examDate": "2025-06-13",
         "prfDaysOfWeek": "[0,1,2,3,4,5,6]",
         "prfPartsOfDay": "[0,1]",
@@ -30,8 +30,8 @@ CONFIG = {
         "licenseNumber": os.getenv("USER_LICENSE_NUMBER")
     },
 
-    # Duncan
-    "location_ids": [214],
+    # Chilliwack
+    "location_ids": [3],
 
     "gmail": {
         "email": os.getenv("USER_GMAIL"),
